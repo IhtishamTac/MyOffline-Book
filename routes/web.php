@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BookController;
 use App\Http\Controllers\OwnerController;
+use App\Http\Controllers\PdfController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,6 +39,8 @@ Route::prefix('pustakawan')->group(function () {
     Route::post('/postcheckout/{tranID}', [BookController::class, 'postcheckout'])->name('postcheckout');
 
     Route::get('/history', [BookController::class, 'history'])->name('history');
+    Route::get('/detail-history/{id}', [BookController::class, 'detailHistory'])->name('detail-history');
+
 
     Route::get('/caribuku', [BookController::class, 'caribuku'])->name('caribuku');
     Route::get('/hapuskeranjang/{id}', [BookController::class, 'hapuskeranjang'])->name('hapuskeranjang');
@@ -57,4 +60,8 @@ Route::prefix('admin')->group(function () {
 Route::prefix('owner')->group(function () {
     Route::get('/home', [OwnerController::class, 'index'])->name('home.owner');
     Route::get('/homes', [OwnerController::class, 'filteredChart'])->name('filteredhome.owner');
+});
+
+Route::prefix('pdf')->group(function () {
+    Route::get('/print-detail-pembelian/{id}', [PdfController::class, 'printDetailPembelian'])->name('print-detail-pembelian');
 });

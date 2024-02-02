@@ -43,7 +43,7 @@
                             <td><img src="{{ asset($item->sampul_buku) }}" width="80px" height="120px"
                                     style="object-fit: cover;" alt="sampul"></td>
                         @elseif($item->status == 'Tidak Dijual')
-                            <td><img src="{{ asset($item->sampul_buku) }}" style="filter: grayscale(100%)"
+                            <td><img src="{{ asset($item->sampul_buku) }}" style="filter: grayscale(100%); height: 120px; object-fit: cover;"
                                     width="80px" alt="sampul"></td>
                         @endif
                         <td>{{ $item->judul_buku }}</td>

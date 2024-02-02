@@ -78,7 +78,7 @@
                             @foreach ($item->detailtransaksi as $detail)
                             <tr>
                                 <td>
-                                    <img src="{{ asset($detail->book->sampul_buku) }}" style="width: 70px"
+                                    <img src="{{ asset($detail->book->sampul_buku) }}" style="width: 70px; height: 110px; object-fit: cover;"
                                         alt="">
                                 </td>
                                 <td>
@@ -95,7 +95,7 @@
                                     {{ number_format($detail->book->harga_buku * $detail->qty, 2, ',', '.') }};
                                 </td>
                                 <td>
-                                    <a href="{{ route('hapuskeranjang', $item->id) }}" class="btn btn-danger"
+                                    <a href="{{ route('hapuskeranjang', $detail->id) }}" class="btn btn-danger"
                                         style="border-radius: 2px;">Hapus</a>
 
                                 </td>

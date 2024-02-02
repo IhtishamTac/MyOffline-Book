@@ -54,7 +54,11 @@ class BookController extends Controller
     {
         $cekTransaksi = Transaksi::where(['user_id' => auth()->id(), 'status' => 'Pending'])->with('detailtransaksi')->first();
         if ($cekTransaksi) {
-            if (!$cekTransaksi->detailtransaksi->where('book_id', $id)->first()) {
+            if ($detailTransaksi = $cekTransaksi->detailtransaksi->where('book_id', $id)->first()) {
+                $detailTransaksi->qty = $detailTransaksi->qty + $request->qty;
+                $detailTransaksi->save();
+                return redirect()->back()->with('message', 'Dimasukan ke keranjang');
+            }else{
                 DetailTransaksi::create([
                     'transaksi_id' => $cekTransaksi->id,
                     'book_id' => $id,
@@ -76,11 +80,7 @@ class BookController extends Controller
             return redirect()->back()->with('message', 'Dimasukan ke keranjang');
         }
 
-        if ($detailTransaksi = $cekTransaksi->detailtransaksi->where('book_id', $id)->first()) {
-            $detailTransaksi->qty = $detailTransaksi->qty + $request->qty;
-            $detailTransaksi->save();
-            return redirect()->back()->with('message', 'Dimasukan ke keranjang');
-        }
+       
     }
     public function keranjang()
     {
@@ -136,7 +136,7 @@ class BookController extends Controller
 
     public function hapuskeranjang($id)
     {
-        $keranjang = Transaksi::where('id', $id)->first();
+        $keranjang = DetailTransaksi::where('id', $id)->first();
         if (!$keranjang) {
             return redirect()->back()->with('error', 'Failed to delete');
         }
@@ -153,5 +153,11 @@ class BookController extends Controller
         ])->with('detailtransaksi.book')->get();
 
         return view('history-pembelian', compact('transaksi'));
+    }
+
+    public function detailHistory($id)
+    {
+       $transaksi = Transaksi::where('id', $id)->with('detailtransaksi.book')->first();
+        return view('detail-history-pembelian', compact('transaksi'));
     }
 }
