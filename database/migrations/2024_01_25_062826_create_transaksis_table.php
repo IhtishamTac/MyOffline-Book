@@ -13,10 +13,11 @@ return new class extends Migration
     {
         Schema::create('transaksis', function (Blueprint $table) {
             $table->id();
-            $table->string('invoice')->nullable();
+            $table->string('invoice')->nullable()->unique();
             $table->foreignId('user_id')->cascadeOnDelete()->cascadeOnUpdate()->constrained();
             $table->string('nama_pembeli')->nullable();
             $table->enum('status',['Dibayar', 'Pending']);
+            $table->string('voucher_digunakan')->nullable();
             $table->integer('total_semua')->nullable();
             $table->integer('uang_bayar')->nullable();
             $table->integer('uang_kembali')->nullable();

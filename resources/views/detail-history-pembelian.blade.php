@@ -7,10 +7,37 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <title>Detail History - {{ auth()->user()->name }}</title>
+
+    <style>
+         body {
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('{{ asset('other_image/bg-perpis.jpg') }}');
+            background-size: cover;
+            background-repeat: no-repeat;
+            opacity: 0.2;
+            z-index: -1;
+        }
+    </style>
 </head>
 
 <body>
     @include('layout.nav')
+    @php
+        $totalSemuas = 0;
+
+        foreach ($transaksi->detailtransaksi as $ditel) {
+            $totalSemuas += $ditel->book->harga_buku * $ditel->qty;
+        }
+    @endphp
     <div class="container mt-5">
         <div class="card">
             <div class="card-header">
@@ -21,9 +48,10 @@
                     </a>
                 </div>
                 <div class="d-flex justify-content-between mt-2">
-                    <h3 style="font-weight: 350;">Pembeli : <span style="font-weight: 500;">{{ $transaksi->nama_pembeli }}</span></h3>
-                    <p style="background-color: rgb(43, 67, 226); padding: 7px; border-radius: 2px; font-size: large; height: 40px"
-                        class="text-white"> {{ $transaksi->invoice }} </p>
+                    <h3 style="font-weight: 350;">Pembeli : <span
+                            style="font-weight: 500;">{{ $transaksi->nama_pembeli }}</span></h3>
+                    <p style="background-color: rgb(255, 238, 0); padding: 7px; border-radius: 2px; font-size: large; height: 40px"
+                        class="text-black"> {{ $transaksi->invoice }} </p>
                 </div>
                 <hr>
             </div>
@@ -74,6 +102,25 @@
                             @endforeach
                         </tbody>
                     </table>
+                    <hr>
+                    @if ($transaksi->voucher_digunakan)
+                        <div class="d-flex justify-content-between">
+                            <p style="font-size: large">Total Semula : </p>
+                            <h5>Rp. {{ number_format($totalSemuas, 2, ',', '.') }}</h5>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <p style="font-size: large">Voucher : </p>
+                            @if ($transaksi->voucher_digunakan)
+                                <h5>{{ $transaksi->voucher_digunakan }}</h5>
+                            @else
+                                <h5>Tidak ada Voucher yang digunakan</h5>
+                            @endif
+                        </div>
+                    @endif
+                    <div class="d-flex justify-content-between">
+                        <p style="font-size: large">Total Semua : </p>
+                        <h5>Rp. {{ number_format($transaksi->total_semua, 2, ',', '.') }}</h5>
+                    </div>
                 </div>
             </div>
         </div>

@@ -7,6 +7,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <title>Keranjang - {{ auth()->user()->name }}</title>
+    
 </head>
 
 <body>

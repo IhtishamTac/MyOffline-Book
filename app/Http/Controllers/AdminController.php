@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Book;
 use App\Models\Log;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class AdminController extends Controller
@@ -87,6 +88,5 @@ class AdminController extends Controller
             'status' => 'Tidak Dijual'
         ]);
         return redirect()->route('home.admin');
-
     }
 }

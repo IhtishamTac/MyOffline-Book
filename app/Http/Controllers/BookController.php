@@ -8,9 +8,13 @@ use Illuminate\Support\Str;
 use App\Models\Book;
 use App\Models\DetailTransaksi;
 use App\Models\Log;
+use App\Models\Member;
 use App\Models\Transaksi;
 use App\Models\User;
+use App\Models\Voucher;
+use App\Models\VoucherInventory;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class BookController extends Controller
 {
@@ -34,18 +38,63 @@ class BookController extends Controller
 
     public function log()
     {
-        if(auth()->user()->role == 'owner'){
-            $log = Log::all();
-        }else if(auth()->user()->role == 'admin'){
+        if (auth()->user()->role == 'owner') {
+            $log = Log::latest()->get();
+        } else if (auth()->user()->role == 'admin') {
             $adminUser = User::where(['role' => 'admin', 'id' => auth()->id()])->get();
             $adminId = $adminUser->pluck('id')->toArray();
 
             $pustaUser = User::where('role', 'pustakawan')->get();
             $pustaId = $pustaUser->pluck('id')->toArray();
 
-            $log = Log::whereIn('user_id', array_merge($adminId, $pustaId))->get();
-        }else{
-            $log = Log::where('user_id', auth()->id())->with('user')->get();
+            $log = Log::whereIn('user_id', array_merge($adminId, $pustaId))->latest()->get();
+        } else {
+            $log = Log::where('user_id', auth()->id())->with('user')->latest()->get();
+        }
+        foreach ($log as $lo) {
+            $lo->createdAt = Carbon::parse($lo->created_at)->format('h:i:s d-M-Y');
+        }
+        return view('log', compact('log'));
+    }
+
+    public function filteredLog(Request $request)
+    {
+        if ($request) {
+            $valid = Validator::make($request->all(), [
+                'dateFrom' => 'required|date',
+                'dateTo' => 'required|date|after_or_equal:dateFrom',
+            ]);
+            if ($valid->fails()) {
+                return redirect()->back()->with('err', $valid->errors());
+            }
+        }
+
+        if (auth()->user()->role == 'owner') {
+            $log = Log::whereDate('created_at', '>=', Carbon::parse($request->dateFrom)->startOfDay())
+                ->whereDate('created_at', '<=', Carbon::parse($request->dateTo)->endOfDay())
+                ->latest()
+                ->get();
+        } else if (auth()->user()->role == 'admin') {
+            $adminUser = User::where(['role' => 'admin', 'id' => auth()->id()])->get();
+            $adminId = $adminUser->pluck('id')->toArray();
+
+            $pustaUser = User::where('role', 'pustakawan')->get();
+            $pustaId = $pustaUser->pluck('id')->toArray();
+
+            $log = Log::whereIn('user_id', array_merge($adminId, $pustaId))
+                ->whereDate('created_at', '>=', Carbon::parse($request->dateFrom)->startOfDay())
+                ->whereDate('created_at', '<=', Carbon::parse($request->dateTo)->endOfDay())
+                ->latest()
+                ->get();
+        } else {
+            $log = Log::where('user_id', auth()->id())->with('user')
+                ->whereDate('created_at', '>=', Carbon::parse($request->dateFrom)->startOfDay())
+                ->whereDate('created_at', '<=', Carbon::parse($request->dateTo)->endOfDay())
+                ->latest()
+                ->get();
+        }
+        foreach ($log as $lo) {
+            $lo->createdAt = Carbon::parse($lo->created_at)->format('h:i:s d-M-Y');
         }
         return view('log', compact('log'));
     }
@@ -58,7 +107,7 @@ class BookController extends Controller
                 $detailTransaksi->qty = $detailTransaksi->qty + $request->qty;
                 $detailTransaksi->save();
                 return redirect()->back()->with('message', 'Dimasukan ke keranjang');
-            }else{
+            } else {
                 DetailTransaksi::create([
                     'transaksi_id' => $cekTransaksi->id,
                     'book_id' => $id,
@@ -79,13 +128,12 @@ class BookController extends Controller
             ]);
             return redirect()->back()->with('message', 'Dimasukan ke keranjang');
         }
-
-       
     }
     public function keranjang()
     {
+        $inventory = [];
         $transaksi = Transaksi::where(['user_id' => auth()->id(), 'status' => 'Pending'])->with('detailtransaksi.book')->get();
-        return view('checkout', compact('transaksi'));
+        return view('checkout', compact(['transaksi', 'inventory']));
     }
 
     // public function checkout($tranID){
@@ -104,19 +152,35 @@ class BookController extends Controller
         $transaksi = Transaksi::whereIn('id', $transacId)->with('detailtransaksi.book')->get();
 
         $totalSemua = 0;
+        $diskon = 0;
 
         foreach ($transaksi as $item) {
             foreach ($item->detailtransaksi as $dtl) {
                 $hargaAwal = $dtl->book->harga_buku * $dtl->qty;
                 $totalSemua += $hargaAwal;
 
+                if ($request->kode_member && $request->id_voucher) {
+                    $kodeMember = $request->kode_member;
+                    $idVoucher = $request->id_voucher;
+
+                    $thisMember = Member::where('kode_unik', $kodeMember)->first();
+                    $thisVoucher = Voucher::where('id', $idVoucher)->first();
+
+                    $diskon = $thisVoucher->potongan_harga / 100 * $totalSemua;
+                }
+
                 $inv = 'INV' . Str::random(10);
                 $item->invoice = $inv;
                 $item->nama_pembeli = $request->nama_pembeli;
                 $item->status = 'Dibayar';
-                $item->total_semua = $totalSemua;
+                $item->total_semua = $totalSemua - $diskon;
+                if ($request->kode_member && $request->id_voucher) {
+                    $item->voucher_digunakan = $thisVoucher->nama_voucher . ' / ' . $thisVoucher->potongan_harga . '%';
+                } else {
+                    $item->voucher_digunakan = null;
+                }
                 $item->uang_bayar = (int)$request->uang_dibayarkan;
-                $item->uang_kembali = (int)$request->uang_dibayarkan - $totalSemua;
+                $item->uang_kembali = (int)$request->uang_dibayarkan - ($totalSemua - $diskon);
                 $item->created_at = Carbon::now();
                 $item->save();
 
@@ -124,6 +188,11 @@ class BookController extends Controller
                 $book->stok -= $dtl->qty;
                 $book->save();
             }
+        }
+
+
+        if ($request->kode_member && $request->id_voucher) {
+            VoucherInventory::where(['member_id' => $thisMember->id, 'voucher_id' => $thisVoucher->id])->delete();
         }
 
         Log::create([
@@ -150,14 +219,25 @@ class BookController extends Controller
         $transaksi = Transaksi::where([
             'user_id' => auth()->id(),
             'status' => 'Dibayar'
-        ])->with('detailtransaksi.book')->get();
+        ])->with('detailtransaksi.book')->latest()->get();
 
         return view('history-pembelian', compact('transaksi'));
     }
 
     public function detailHistory($id)
     {
-       $transaksi = Transaksi::where('id', $id)->with('detailtransaksi.book')->first();
+        $transaksi = Transaksi::where('id', $id)->with('detailtransaksi.book')->first();
         return view('detail-history-pembelian', compact('transaksi'));
+    }
+
+    public function vouchers(Request $request)
+    {
+        $member = Member::where('kode_unik', $request->kode_member)->first();
+        if (!$member) {
+            return redirect()->back()->with('err', 'Member tidak ada');
+        }
+        $inventory = VoucherInventory::where('member_id', $member->id)->get();
+        $transaksi = Transaksi::where(['user_id' => auth()->id(), 'status' => 'Pending'])->with('detailtransaksi.book')->get();
+        return view('checkout', compact(['transaksi', 'inventory']));
     }
 }

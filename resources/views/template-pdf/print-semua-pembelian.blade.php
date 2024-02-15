@@ -112,7 +112,7 @@
         </div>
 
         <div class="footer">
-            <p>Thank you for your business!</p>
+            <p>Terimakasih untk pembelian Anda!</p>
         </div>
     </div>
 </body>

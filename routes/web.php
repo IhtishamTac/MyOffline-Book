@@ -31,6 +31,7 @@ Route::prefix('pustakawan')->group(function () {
     Route::get('/home', [BookController::class, 'index'])->name('home');
 
     Route::get('/log', [BookController::class, 'log'])->name('log');
+    Route::get('/filtered-log', [BookController::class, 'filteredLog'])->name('filtered-log');
 
     Route::post('/post-keranjang/{id}', [BookController::class, 'postkeranjang'])->name('post-keranjang');
     Route::get('/keranjang', [BookController::class, 'keranjang'])->name('keranjang');
@@ -44,6 +45,8 @@ Route::prefix('pustakawan')->group(function () {
 
     Route::get('/caribuku', [BookController::class, 'caribuku'])->name('caribuku');
     Route::get('/hapuskeranjang/{id}', [BookController::class, 'hapuskeranjang'])->name('hapuskeranjang');
+
+    Route::get('/vouchers', [BookController::class, 'vouchers'])->name('vouchers');
 });
 
 Route::prefix('admin')->group(function () {

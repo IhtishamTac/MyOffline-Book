@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="preload" as="image" href="{{ asset('other_image/bg-perpis.jpg') }}">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <title>History - {{ auth()->user()->name }}</title>
 </head>
@@ -19,12 +20,42 @@
         text-decoration: underline;
         transform: scale(1.2);
     }
+
+    .nav-kasir {
+        background-color: rgb(255, 215, 0);
+        border-radius: 2px;
+    }
+
+    body {
+        position: relative;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('{{ asset('other_image/bg-perpis.jpg') }}');
+        background-size: cover;
+        background-repeat: no-repeat;
+        opacity: 0.2;
+        z-index: -1;
+    }
+
+    .wraps {
+        padding-bottom: 100px;
+        background-color: rgb(251, 251, 251);
+        padding: 40px;
+        border-radius: 5px;
+    }
 </style>
 
 <body>
 
     @include('layout.nav')
-    <div class="container mt-5">
+    <div class="container mt-5 wraps">
         <h2>History Pembelian</h2>
         <div class="row mt-5">
             @foreach ($transaksi as $item)
@@ -45,8 +76,8 @@
                                     <div class="d-flex justify-content-between">
                                         <p style="font-size: large">{{ $item->nama_pembeli }} <span
                                                 style="font-weight: 500">({{ $item->created_at }})</span></p>
-                                        <p style="background-color: rgb(43, 67, 226); padding: 7px; border-radius: 2px; position: absolute; right: 0; top: 0;"
-                                            class="text-white">{{ $item->invoice }} </p>
+                                        <p style="background-color: rgb(255, 238, 0); padding: 7px; border-radius: 2px; position: absolute; right: 0; top: 0;"
+                                            class="text-dark">{{ $item->invoice }} </p>
                                     </div>
                                     <div class="d-flex justify-content-between">
                                         <p>Jumlah Semua Barang : </p>
