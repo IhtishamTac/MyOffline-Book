@@ -40,7 +40,7 @@
                             <input type="text" class="form-control" placeholder="Isi Nominal..." id="nominalInput">
                         </div>
                         <div class="mt-3">
-                            <button class="btn btn-success w-100" style="border-radius: 2px;">Bayar</button>
+                            <a href="{{ route('sukses-bayar') }}" class="btn btn-success w-100" onclick="inputNominal()" style="border-radius: 2px;">Bayar</a>
                         </div>
                     </div>
                 </div>
@@ -50,7 +50,9 @@
 
     <script>
         function inputNominal() {
-            
+            var inputNominal = document.getElementById("nominalInput");
+            localStorage.setItem('nominal', inputNominal.value);
+
         }
     </script>
 </body>

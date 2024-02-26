@@ -91,3 +91,4 @@ Route::prefix('member')->group(function () {
     Route::get('/profile', [MemberController::class, 'profile'])->name('member.profile');
 });
 Route::get('/pembayaran-qris', [MemberController::class, 'pembayaranQris'])->name('pembayaran-qris');
+Route::get('/sukses-bayar', [MemberController::class, 'suskesBayar'])->name('sukses-bayar');

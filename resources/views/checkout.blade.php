@@ -88,8 +88,7 @@
                                         </div>
                                         <div class="modal-body">
                                             <div class="d-flex justify-content-center">
-
-                                                {!! QrCode::size(300)->generate('http://http://127.0.0.1:8000/pembayaran-qris') !!}
+                                                {!! QrCode::size(400)->generate('http://http://127.0.0.1:8000/pembayaran-qris') !!}
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -251,8 +250,10 @@
 
             var inputKodeMember = document.getElementById('kodeMember');
             const kodeMembe = localStorage.getItem('kodeMember');
-
+            const inputNominal = localStorage.getItem('nominal');
             inputKodeMember.value = kodeMembe;
+            input.value = inputNominal;
+            updateTotal();
         });
 
         function confirmBayar() {
@@ -260,6 +261,7 @@
 
             if (confirmation) {
                 localStorage.removeItem('kodeMember');
+                localStorage.removeItem('nominal');
                 return true;
             } else {
                 return false;

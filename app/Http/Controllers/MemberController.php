@@ -32,4 +32,8 @@ class MemberController extends Controller
     {
         return view('pembayaran.isipembayaran');
     }
+    public function suskesBayar()
+    {
+        return view('pembayaran.suksesbayar');
+    }
 }
