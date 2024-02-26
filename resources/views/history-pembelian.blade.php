@@ -22,7 +22,7 @@
     }
 
     .nav-kasir {
-        background-color: rgb(255, 215, 0);
+        background-color: rgb(0, 76, 255);
         border-radius: 2px;
     }
 
@@ -37,15 +37,15 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-image: url('{{ asset('other_image/bg-perpis.jpg') }}');
+        background-image: url('{{ asset('other_image/bg-white.jpg') }}');
         background-size: cover;
         background-repeat: no-repeat;
-        opacity: 0.2;
+        opacity: 0.5;
         z-index: -1;
     }
 
     .wraps {
-        padding-bottom: 100px;
+        padding-bottom: 200px;
         background-color: rgb(251, 251, 251);
         padding: 40px;
         border-radius: 5px;
@@ -56,8 +56,12 @@
 
     @include('layout.nav')
     <div class="container mt-5 wraps">
-        <h2>History Pembelian</h2>
-        <div class="row mt-5">
+        <div class="d-flex justify-content-between">
+            <h2>History Pembelian</h2>
+            <input type="search" class="form-control p-3 w-25" style="height: 40px;" name="searchHistory"
+                id="searchHistory" placeholder="Cari Transaksi...">
+        </div>
+        <div class="row mt-5" id="searchHistoryResult">
             @foreach ($transaksi as $item)
                 @php
                     $jumlahSemua = 0;
@@ -76,8 +80,8 @@
                                     <div class="d-flex justify-content-between">
                                         <p style="font-size: large">{{ $item->nama_pembeli }} <span
                                                 style="font-weight: 500">({{ $item->created_at }})</span></p>
-                                        <p style="background-color: rgb(255, 238, 0); padding: 7px; border-radius: 2px; position: absolute; right: 0; top: 0;"
-                                            class="text-dark">{{ $item->invoice }} </p>
+                                        <p style="padding: 7px; border-radius: 2px; position: absolute; right: 0; top: 0;"
+                                            class="text-white bg-success">{{ $item->invoice }} </p>
                                     </div>
                                     <div class="d-flex justify-content-between">
                                         <p>Jumlah Semua Barang : </p>
@@ -86,13 +90,13 @@
                                     <div class="d-flex justify-content-between">
                                         <p>Total Harga : </p>
                                         <p style="font-weight: 500;">Rp.
-                                            {{ number_format($item->total_semua, 2, ',', '.') }}
+                                            {{ number_format($item->total_semua, 0, ',', '.') }}
                                         </p>
                                     </div>
                                     <div class="d-flex justify-content-between">
                                         <p>Uang Dibayarkan : </p>
                                         <p style="font-weight: 500;">Rp.
-                                            {{ number_format($item->uang_bayar, 2, ',', '.') }}</p>
+                                            {{ number_format($item->uang_bayar, 0, ',', '.') }}</p>
                                     </div>
 
                                 </div>
@@ -102,7 +106,38 @@
                 </div>
             @endforeach
         </div>
+
     </div>
+
+    <div style="margin-top: 400px;">
+        @include('layout.footer')
+
+    </div>
+    <script src="{{ asset('js/jquery-3.7.0.js') }}"></script>
+    <script>
+        $(document).ready(() => {
+            $('#searchHistory').on('input', () => {
+                var query = $('#searchHistory').val();
+
+                $.ajax({
+                    url: '/pustakawan/search-history',
+                    method: 'GET',
+                    data: {
+                        query: query
+                    },
+                    success: ((data) => {
+                        $('#searchHistoryResult').html(data);
+                        // data = JSON.parse(data); 
+                        // let transaksi = data.transaksi;
+                        // console.log(transaksi);
+                    }),
+                    error: ((error) => {
+                        console.error('Error:', error);
+                    }),
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -1,75 +1,84 @@
 <!DOCTYPE html>
-
+<html lang="en">
 <head>
-    <title>Document</title>
+    <title>Invoice</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .invoice {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .invoice-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            background-color: rgb(243, 243, 243);
+            padding: 0 20px;
+        }
+
+        .invoice-info div {
+            width: 48%;
+        }
+
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .invoice-table th,
+        .invoice-table td {
+            border: 1px solid #000000;
+            padding: 12px;
+            text-align: left;
+        }
+
+        .invoice-table th {
+            background-color: #f2f2f2;
+        }
+
+        .invoice-total {
+            margin-top: 20px;
+            text-align: right;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
 </head>
-<style>
-    body {
-        font-family: Arial, sans-serif;
-    }
-
-    .invoice {
-        max-width: 800px;
-        margin: 20px auto;
-        padding: 20px;
-        border: 1px solid #ddd;
-        border-radius: 8px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .header {
-        text-align: center;
-        margin-bottom: 20px;
-    }
-
-    .invoice-info {
-        display: flex;
-        justify-content: space-between;
-        margin-bottom: 20px;
-    }
-
-    .invoice-info div {
-        width: 48%;
-    }
-
-    .invoice-table {
-        width: 100%;
-        border-collapse: collapse;
-        margin-top: 20px;
-    }
-
-    .invoice-table th,
-    .invoice-table td {
-        border: 1px solid #ddd;
-        padding: 10px;
-        text-align: left;
-    }
-
-    .invoice-total {
-        margin-top: 20px;
-        text-align: right;
-    }
-
-    .footer {
-        margin-top: 20px;
-        text-align: center;
-    }
-</style>
-
 <body>
     <div class="invoice">
         <div class="header">
-            <h1>Invoice</h1>
+            <div>
+                <h1><span style="color: rgb(35, 46, 255)">Flybook</span> Indonesia</h1>
+                <p style="margin-top: -20px; color: rgb(5, 69, 90);">flybook@comp.id</p>
+            </div>
         </div>
-
+        <hr>
         <div class="invoice-info">
             <div>
-                <p>Invoice : <strong>{{ $data->invoice }}</strong></p>
-                <p>Tanggal : <strong>{{ $data->updated_at }}</strong></p>
+                <p>Kode : <strong>{{ $data->invoice }}</strong></p>
+                <p>Tanggal : <strong>{{ \Carbon\Carbon::parse($data->updated_at)->format('d F Y') }}</strong></p>
                 <p>Pembeli : <strong>{{ $data->nama_pembeli }}</strong></p>
             </div>
         </div>
-
+        
         <table class="invoice-table">
             <thead>
                 <tr>
@@ -82,18 +91,10 @@
             <tbody>
                 @foreach ($data->detailtransaksi as $item)
                     <tr>
-                        <td>
-                            {{ $item->book->judul_buku }}
-                        </td>
-                        <td>
-                            Rp. {{ number_format($item->book->harga_buku, 2, ',', '.') }}
-                        </td>
-                        <td>
-                            {{ $item->qty }}
-                        </td>
-                        <td>
-                            Rp. {{ number_format($item->book->harga_buku * $item->qty, 2, ',', '.') }}
-                        </td>
+                        <td>{{ $item->book->judul_buku }}</td>
+                        <td>Rp. {{ number_format($item->book->harga_buku, 2, ',', '.') }}</td>
+                        <td>{{ $item->qty }}</td>
+                        <td>Rp. {{ number_format($item->book->harga_buku * $item->qty, 2, ',', '.') }}</td>
                     </tr>
                 @endforeach
             </tbody>
@@ -108,13 +109,13 @@
             }
         @endphp
         <div class="invoice-total">
-            <p><strong>Total: Rp. {{ number_format( $totalSemua, 2, ',', '.') }}</strong></p>
+            <p><strong>Total: Rp. {{ number_format($totalSemua, 2, ',', '.') }}</strong></p>
         </div>
 
         <div class="footer">
-            <p>Terimakasih untk pembelian Anda!</p>
+            <p>Terimakasih untuk pembelian Anda!</p>
+            <p>Hubungi kami di <strong><span style="color: rgb(18, 64, 216);">support@flybook.id</span></strong> atau <strong>+62 230-2342-4678</strong></p>
         </div>
     </div>
 </body>
-
 </html>

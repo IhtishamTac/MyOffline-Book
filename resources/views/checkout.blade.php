@@ -5,7 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/dataTables.bootstrap5.min.css') }}">
+
+    <script src="{{ asset('js/jquery-3.7.0.js') }}"></script>
+    <script src="{{ asset('js/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('js/jquery.dataTables.min.js') }}"></script>
+
     <title>Checkout - {{ auth()->user()->name }}</title>
 
     <style>
@@ -20,10 +27,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('{{ asset('other_image/bg-perpis.jpg') }}');
+            background-image: url('{{ asset('other_image/bg-white.jpg') }}');
             background-size: cover;
             background-repeat: no-repeat;
-            opacity: 0.2;
+            opacity: 0.5;
             z-index: -1;
         }
     </style>
@@ -41,9 +48,13 @@
         }
 
     @endphp
-    <div class="container mt-5">
-        <a href="{{ route('home') }}" class="btn btn-warning text-light"
-            style="position: absolute; border-radius: 2px; left: 200px;">Kembali</a>
+
+    @include('layout.nav');
+    @include('sweetalert::alert')
+
+    <div class="container mt-5" style="padding-bottom: 200px;">
+        {{-- <a href="{{ route('home') }}" class="btn btn-warning text-light"
+            style="position: absolute; border-radius: 2px; left: 200px;">Kembali</a> --}}
         <div class="card">
             <div class="card-header">
 
@@ -55,20 +66,46 @@
                         <div class="d-flex">
                             <p style="margin-top: 10px; font-size: large;">Total Semua Buku : <span
                                     style="font-weight: 500; margin-right: 10px;" id="totalHarga">Rp.
-                                    {{ number_format($totalSemua, 2, ',', '.') }}</span></p>
-                            <button id="btnCheckout" onclick="updateTotal()"
-                                style="background-color: rgb(255, 221, 0); border-radius: 2px; width: 100px;font-size: large;"
-                                class="btn text-black" disabled>Bayar</button>
+                                    {{ number_format($totalSemua, 0, ',', '.') }}</span></p>
+                            <button id="btnCheckout" type="submit" onclick="confirmBayar()"
+                                style=" border-radius: 2px; width: 100px;font-size: large;"
+                                class="btn btn-success text-white" disabled>Bayar</button>
                         </div>
                     </div>
                     <div class="mt-3 d-flex justify-content-between">
-                        <input type="text" class="form-control w-50" name="uang_dibayarkan"
-                            placeholder="Uang dibayarkan..." id="uangDibayarkan">
+                        <div class="d-flex">
+                            <input type="text" class="form-control" name="uang_dibayarkan"
+                                placeholder="Uang dibayarkan..." id="uangDibayarkan">
+                            {{-- qris button --}}
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#modalQris"
+                                class="btn btn-secondary w-50" style="border-radius: 2px;">Show QRis</button>
+                            {{-- qris qrcode --}}
+                            <div class="modal fade" id="modalQris">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <img src="{{ asset('icon_assets/qrislogo.png') }}" alt="qrislogo">
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="d-flex justify-content-center">
+
+                                                {!! QrCode::size(300)->generate('http://http://127.0.0.1:8000/pembayaran-qris') !!}
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary w-50" style="border-radius: 2px;"
+                                                data-bs-dismiss="modal">Batalkan</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {{-- qris qrcode --}}
+                        </div>
                         <p>Uang Kembalian : <span style="font-weight: 500" id="uangKembali">Rp. 0</span></p>
                     </div>
                     <div class="mt-3">
-                        <input type="text" class="form-control" placeholder="Nama Pembeli" name="nama_pembeli" onchange="updateTotal()"
-                            required>
+                        <input type="text" class="form-control" placeholder="Nama Pembeli" name="nama_pembeli"
+                            onchange="updateTotal()" required>
                     </div>
 
                     <input type="hidden"name="kode_member" id="hiddenKodeMember">
@@ -78,8 +115,9 @@
                     <div class="mt-3">
                         <div class="d-flex gap-2">
                             <input type="text" class="form-control w-75" placeholder="Kode Unik Member"
-                                name="kode_member" id="kodeMember" onchange="setCookieMember(this.value)" id="inputKodeMember">
-                            <button class="btn btn-warning w-25" id="btnCariMember">Cari Member</button>
+                                name="kode_member" id="kodeMember" onchange="setCookieMember(this.value)"
+                                id="inputKodeMember">
+                            <button class="btn btn-primary w-25" id="btnCariMember">Cari Member</button>
                         </div>
                         <select name="voucher" class="form-select mt-2" onchange="discount(this.value)">
                             @if ($inventory)
@@ -94,14 +132,12 @@
                                 <option value="" disabled selected>Tidak Ada Voucher</option>
                             @endif
                         </select>
-                        @if (Session::has('err'))
-                            <p class="alert alert-danger mt-2">{{ Session::get('err') }}</p>
-                        @endif
+
                     </div>
                 </form>
             </div>
             <div class="card-body">
-                <table class="table">
+                <table class="table" id="tabelKeranjang">
                     <thead>
                         <tr>
                             <th>
@@ -136,18 +172,19 @@
                                         {{ $detail->book->judul_buku }}
                                     </td>
                                     <td>
-                                        Rp. {{ number_format($detail->book->harga_buku, 2, ',', '.') }};
+                                        Rp. {{ number_format($detail->book->harga_buku, 0, ',', '.') }};
                                     </td>
                                     <td>
                                         {{ $detail->qty }}
                                     </td>
                                     <td>
                                         Rp.
-                                        {{ number_format($detail->book->harga_buku * $detail->qty, 2, ',', '.') }};
+                                        {{ number_format($detail->book->harga_buku * $detail->qty, 0, ',', '.') }};
                                     </td>
                                     <td>
                                         <a href="{{ route('hapuskeranjang', $detail->id) }}" class="btn btn-danger"
-                                            style="border-radius: 2px;">Hapus</a>
+                                            style="border-radius: 2px;"
+                                            onclick="return confirm('Yakin akan menghapus?')">Hapus</a>
 
                                     </td>
                                 </tr>
@@ -159,7 +196,12 @@
         </div>
     </div>
 
+    @include('layout.footer')
+
+    <script src="{{ asset('js/jquery-3.7.0.js') }}"></script>
+    <script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script>
+        new DataTable("#tabelKeranjang");
         let potongan_harga = 0;
         let totalSemua = {{ $totalSemua }};
 
@@ -187,11 +229,11 @@
 
             if (uangDibayarkan < (totalSemua - potongan_harga)) {
                 lblKembali.textContent = "Uang tidak cukup";
-                lblTotal.textContent = 'Rp. ' + newTotal.toFixed(2);
+                lblTotal.textContent = 'Rp. ' + newTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                 btnCheckout.disabled = true;
             } else {
-                lblKembali.textContent = 'Rp. ' + kembali.toFixed(2);
-                lblTotal.textContent = 'Rp. ' + newTotal.toFixed(2);
+                lblKembali.textContent = 'Rp. ' + kembali.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+                lblTotal.textContent = 'Rp. ' + newTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                 btnCheckout.disabled = false;
             }
         }
@@ -212,6 +254,17 @@
 
             inputKodeMember.value = kodeMembe;
         });
+
+        function confirmBayar() {
+            var confirmation = confirm('Yakin akan melanjutkan?');
+
+            if (confirmation) {
+                localStorage.removeItem('kodeMember');
+                return true;
+            } else {
+                return false;
+            }
+        }
     </script>
 </body>
 

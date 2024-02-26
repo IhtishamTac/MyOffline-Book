@@ -14,27 +14,27 @@ class OwnerController extends Controller
 {
     public function index()
     {
-        $transaksi = Transaksi::where('status', 'Dibayar')->get();
+        $transaksis = Transaksi::where('status', 'Dibayar')->with('detailtransaksi.book')->get();
 
-        $tanggal = $transaksi->pluck('updated_at')->map(function ($date) {
+        $tanggal = $transaksis->pluck('updated_at')->map(function ($date) {
             return \Carbon\Carbon::parse($date)->format('d-m-Y');
         })->toArray();
 
-        $profit = $transaksi->pluck('total_semua')->toArray();
+        $profit = $transaksis->pluck('total_semua')->toArray();
 
         $total_pendapatan = array_sum($profit);
 
-        $chart = (new LarapexChart)->setType('area')
+        $chart = (new LarapexChart)->setType('bar')
             ->setTitle('Book sales')
             ->setSubtitle('From Transactions this day')
             ->setXAxis($tanggal)
-            ->setDataset([
+            ->setDataset([ 
                 [
                     'name'  =>  'Income Rp. ',
                     'data'  =>  $profit
                 ]
             ])
-            ->setColors(['#FFFF00']);
+            ->setColors(['#0C9CEE']);
 
         $semuaKasir = User::where('role', 'pustakawan')->get();
         $idKasir = [];
@@ -54,10 +54,10 @@ class OwnerController extends Controller
             ->setSubtitle('Show the active Cashier and Admin')
             ->setDataset($totalPerKasir)
             ->setLabels($namaKasir)
-            ->setColors(['#a98600', '#dab600'])
+            ->setColors([ '#190482', '#8E8FFA'])
             ->setFontColor('#000000');
 
-        return view('owner.index', compact(['chart', 'pieChart', 'total_pendapatan']));
+        return view('owner.index', compact(['chart', 'pieChart', 'total_pendapatan', 'transaksis']));
     }
 
     public function filteredChart(Request $request)
@@ -72,25 +72,26 @@ class OwnerController extends Controller
             }
         }
         if ($request->dateFrom && $request->dateTo) {
-            $transaksi = Transaksi::where('status', 'Dibayar')
+            $transaksis = Transaksi::where('status', 'Dibayar')
                 // ->whereDate('updated_at', '>=', Carbon::parse($request->dateFrom)->startOfDay())
                 // ->whereDate('updated_at', '<=', Carbon::parse($request->dateTo)->endOfDay())
                 ->whereBetween('updated_at', [
                     Carbon::parse($request->dateFrom)->startOfDay(),
                     Carbon::parse($request->dateTo)->endOfDay()
                 ])
+                ->with('detailtransaksi.book')
                 ->get();
         }
 
-        $tanggal = $transaksi->pluck('updated_at')->map(function ($date) {
+        $tanggal = $transaksis->pluck('updated_at')->map(function ($date) {
             return \Carbon\Carbon::parse($date)->format('d-m-Y');
         })->toArray();
 
-        $profit = $transaksi->pluck('total_semua')->toArray();
+        $profit = $transaksis->pluck('total_semua')->toArray();
 
         $total_pendapatan = array_sum($profit);
 
-        $chart = (new LarapexChart)->setType('area')
+        $chart = (new LarapexChart)->setType('bar')
             ->setTitle('Book sales')
             ->setSubtitle('From Transactions this day')
             ->setXAxis($tanggal)
@@ -100,7 +101,7 @@ class OwnerController extends Controller
                     'data'  =>  $profit
                 ]
             ])
-            ->setColors(['#FFFF00']);
+            ->setColors(['#0C9CEE']);
 
         $semuaKasir = User::where('role', 'pustakawan')->get();
         $idKasir = [];
@@ -125,9 +126,9 @@ class OwnerController extends Controller
             ->setSubtitle('Show the active Cashier and Admin')
             ->setDataset($totalPerKasir)
             ->setLabels($namaKasir)
-            ->setColors(['#a98600', '#dab600'])
+            ->setColors([ '#190482', '#8E8FFA'])
             ->setFontColor('#000000');
 
-        return view('owner.index', compact(['chart', 'pieChart', 'total_pendapatan']));
+        return view('owner.index', compact(['chart', 'pieChart', 'total_pendapatan', 'transaksis']));
     }
 }

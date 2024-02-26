@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Log - {{ auth()->user()->name }}</title>
-    
+
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/dataTables.bootstrap5.min.css') }}">
 
@@ -15,28 +15,29 @@
     <script src="{{ asset('js/jquery.dataTables.min.js') }}"></script>
 
 
-   @if (auth()->user()->role == 'pustakawan')
-   <style>
-    body {
-        position: relative;
-    }
+    @if (auth()->user()->role == 'pustakawan')
+        <style>
+            body {
+                position: relative;
+            }
 
-    body::before {
-        content: '';
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background-image: url('{{ asset('other_image/bg-perpis.jpg') }}');
-        background-size: cover;
-        background-repeat: no-repeat;
-        opacity: 0.2;
-        z-index: -1;
-        
-    }
-</style>
-   @endif
+            body::before {
+                content: '';
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background-image: url('{{ asset('other_image/bg-white.jpg') }}');
+                background-size: cover;
+                background-repeat: no-repeat;
+                opacity: 0.5;
+                z-index: -1;
+
+            }
+        </style>
+    
+    @endif
 </head>
 
 <body>
@@ -50,8 +51,7 @@
             <p class="alert alert-warning">{{ Session::get('err') }}</p>
         @endif
     </div>
-    <div class="container d-flex mt-5"
-        style="background-color:  rgb(246, 246, 246); padding: 30px; border-radius: 2px;">
+    <div class="container d-flex" style="background-color:  rgb(246, 246, 246); padding: 30px; border-radius: 2px;">
         <table class="table w-75 mx-auto">
             <thead>
                 <tr>
@@ -63,7 +63,7 @@
             <tbody>
                 @foreach ($log as $item)
                     <tr>
-                        <td>{{ $item->createdAt }}</td>
+                        <td>{{ \Carbon\Carbon::parse($item->createdAt)->format('d F Y') }}</td>
                         <td>{{ $item->user->name }}</td>
                         <td>{{ $item->aktivitas }}</td>
                     </tr>
@@ -79,11 +79,14 @@
                 <label for="to">To</label>
                 <input type="date" name="dateTo" class="form-control w-75" required>
             </div>
-            <button class="btn btn-warning w-100 mt-3" style="border-radius: 2px;">Fitler</button>
+            <button class="btn btn-success w-100 mt-3" style="border-radius: 2px;">Fitler</button>
 
         </form>
     </div>
 
+    <div style="margin-top: 700px;">
+        @include('layout.footer')
+    </div>
     <script>
         new DataTable('#logTable');
     </script>

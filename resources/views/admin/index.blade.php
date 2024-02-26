@@ -23,6 +23,7 @@
 </head>
 
 <body>
+    @include('sweetalert::alert')
     <div class="row">
         <div class="col-1">
             @include('layout.sidebar')
@@ -69,15 +70,15 @@
                                 <td>{{ $item->deskripsi }}</td>
                                 <td>Rp. {{ number_format($item->harga_buku, 2, ',', '.') }}</td>
                                 <td>{{ $item->stok }}</td>
-                                <td>
+                                <td style="display: flex; gap: 5px;" class="">
+                                    
                                     <a href="{{ route('edit-book.admin', $item->id) }}" class="btn btn-warning"
                                         style="border-radius: 2px;">Edit</a>
-
                                     @if ($item->status == 'Dijual')
                                         <a href="{{ route('nonaktifkan-buku.admin', $item->id) }}"
-                                            class="btn btn-danger" style="border-radius: 2px;">Hapus</a>
+                                            class="btn btn-danger" style="border-radius: 2px;" onclick="return confirm('Yakin akan menontaktifkan buku?')">Hapus</a>
                                     @elseif($item->status == 'Tidak Dijual')
-                                        <a href="{{ route('aktifkan-buku.admin', $item->id) }}" class="btn btn-success"
+                                        <a href="{{ route('aktifkan-buku.admin', $item->id) }}" class="btn btn-success" onclick="return confirm('Yakin akan mengaktifkan buku?')"
                                             style="border-radius: 2px;">Kembalikan</a>
                                     @endif
                                 </td>
@@ -87,7 +88,9 @@
                 </table>
             </div>
 
-
+            <div style="margin-top: 400px;">
+                @include('layout.footer')
+            </div>
             <script>
                 new DataTable('#adminTable');
             </script>

@@ -6,7 +6,7 @@
             <div>
                 <div class="sidebar-heading">
                     <h2 style="padding: 20px; padding-left: 30px; margin-top: 20px;">
-                        <span style="color: rgb(255, 215, 0); font-weight: 600;">Flybook</span> Indonesia
+                        <span style="color: rgb(0, 76, 255); font-weight: 600;">Flybook</span> Indonesia
                     </h2>
                 </div>
             </div>
@@ -19,6 +19,8 @@
                             Penjualan</a>
                     @endif
                     @if (auth()->user()->role == 'admin')
+                        <a href="{{ route('home.owner') }}" class="list-group-item list-group-item-action text-dark p-4"
+                            style="font-size: larger; padding-left: 30px;">Dashboard</a>
                         <a href="{{ route('home.admin') }}" class="list-group-item list-group-item-action text-dark p-4"
                             style="font-size: larger; padding-left: 30px;">Kelola
                             Buku</a>
@@ -26,8 +28,9 @@
                     <a href="{{ route('log') }}" class="list-group-item list-group-item-action text-dark p-4"
                         style="font-size: larger; padding-left: 30px;">Aktivitas
                         Terakhir</a>
-                    <a href="{{ route('logout') }}" class="list-group-item list-group-item-action text-light p-4"
-                        style="background-color: rgb(255, 215, 0); border-radius: 2px; font-size: larger; font-weight: 500"
+                    <a href="{{ route('logout') }}"
+                        class="list-group-item list-group-item-action text-light p-4 bg-danger"
+                        style="border-radius: 2px; font-size: larger; font-weight: 500"
                         onclick="return confirm('Yakin akan logout?')">Logout</a>
                 </div>
             </div>

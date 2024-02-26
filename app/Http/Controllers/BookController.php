@@ -7,6 +7,7 @@ use Illuminate\Support\Str;
 
 use App\Models\Book;
 use App\Models\DetailTransaksi;
+use App\Models\Kategori;
 use App\Models\Log;
 use App\Models\Member;
 use App\Models\Transaksi;
@@ -15,25 +16,48 @@ use App\Models\Voucher;
 use App\Models\VoucherInventory;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
+use RealRashid\SweetAlert\Facades\Alert;
 
 class BookController extends Controller
 {
     public function index()
     {
-        $books = Book::where('status', 'Dijual')->get();
-        return view('welcome', compact('books'));
+        $books = Book::where('status', 'Dijual')->where('stok', '>', 0)->get();
+        $kategoris = Kategori::paginate(5);
+        return view('welcome', compact('books', 'kategoris'));
     }
 
     public function caribuku(Request $request)
     {
-        $searchTerm = $request->input('cariBuku');
+        $searchTerm = $request->input('query');
         if ($searchTerm) {
             $books = Book::where('judul_buku', 'LIKE', "%{$searchTerm}%")->get();
         } else {
             $books = Book::where('status', 'Dijual')->get();
         }
 
-        return view('welcome', compact('books'));
+        return view('ajax-template.book-card-home', compact('books'));
+    }
+
+    public function cariBukuKategori(Request $request)
+    {
+        $searchTerm = $request->input('query');
+        $lowercaseQuery = strtolower($searchTerm);
+        if ($searchTerm) {
+            $kategori = Kategori::where('nama_kategori', 'LIKE', "%{$lowercaseQuery}%")
+                ->with([
+                    'books' => function ($bookQuery){
+                        $bookQuery->where('status', 'Dijual');
+                    }])->get();
+
+            foreach ($kategori as $kat) {
+                $books = $kat->books;
+            }
+        } else {
+            $books = Book::where('status', 'Dijual')->get();
+        }
+
+        return view('ajax-template.book-card-home', compact('books'));
     }
 
     public function log()
@@ -106,6 +130,7 @@ class BookController extends Controller
             if ($detailTransaksi = $cekTransaksi->detailtransaksi->where('book_id', $id)->first()) {
                 $detailTransaksi->qty = $detailTransaksi->qty + $request->qty;
                 $detailTransaksi->save();
+                toast('Dimasukan ke keranjang', 'success');
                 return redirect()->back()->with('message', 'Dimasukan ke keranjang');
             } else {
                 DetailTransaksi::create([
@@ -113,6 +138,7 @@ class BookController extends Controller
                     'book_id' => $id,
                     'qty' => $request->qty
                 ]);
+                toast('Dimasukan ke keranjang', 'success');
                 return redirect()->back()->with('message', 'Dimasukan ke keranjang');
             }
         }
@@ -126,6 +152,7 @@ class BookController extends Controller
                 'book_id' => $id,
                 'qty' => $request->qty
             ]);
+            toast('Dimasukan ke keranjang', 'success');
             return redirect()->back()->with('message', 'Dimasukan ke keranjang');
         }
     }
@@ -135,6 +162,8 @@ class BookController extends Controller
         $transaksi = Transaksi::where(['user_id' => auth()->id(), 'status' => 'Pending'])->with('detailtransaksi.book')->get();
         return view('checkout', compact(['transaksi', 'inventory']));
     }
+
+
 
     // public function checkout($tranID){
     //     $transacId = json_decode($tranID);
@@ -224,6 +253,19 @@ class BookController extends Controller
         return view('history-pembelian', compact('transaksi'));
     }
 
+    public function search_history(Request $request)
+    {
+        $inputSearch = $request->input('query');
+        $transaksi = Transaksi::where(['user_id' => auth()->id(), 'status' => 'Dibayar'])
+            ->where('invoice', 'LIKE', "%{$inputSearch}%")
+            ->orWhere('nama_pembeli', 'LIKE', "%{$inputSearch}%")
+            // ->where('updated_at','LIKE', "%{$inputSearch}%")
+            ->with('detailtransaksi.book')
+            ->latest()
+            ->get();
+        return view('ajax-template.card-history', compact(['transaksi']));
+    }
+
     public function detailHistory($id)
     {
         $transaksi = Transaksi::where('id', $id)->with('detailtransaksi.book')->first();
@@ -234,7 +276,8 @@ class BookController extends Controller
     {
         $member = Member::where('kode_unik', $request->kode_member)->first();
         if (!$member) {
-            return redirect()->back()->with('err', 'Member tidak ada');
+            Alert::error('Member tidak ada!');
+            return redirect()->back();
         }
         $inventory = VoucherInventory::where('member_id', $member->id)->get();
         $transaksi = Transaksi::where(['user_id' => auth()->id(), 'status' => 'Pending'])->with('detailtransaksi.book')->get();

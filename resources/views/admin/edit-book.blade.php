@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
-    <title>Add Book - {{ auth()->user()->name }}</title>
+    <title>Edit Book - {{ auth()->user()->name }}</title>
 </head>
 
 <body>
@@ -17,6 +17,14 @@
                     <form action="{{ route('post-edit-book.admin', $book->id) }}" enctype="multipart/form-data" method="POST">
                         @csrf
                         <h2>Edit Buku</h2>
+                        <div class="mt-4">
+                            <select name="kategori_id" id="kategori" class="form-select">
+                                <option selected disabled>Pilih Kategori</option>
+                                @foreach ($kategori as $item)
+                                    <option value="{{ $item->id }}">{{ $item->nama_kategori }}</option>
+                                @endforeach
+                            </select>
+                        </div>
                         <div class="mt-4">
                             <label for="sampul">Sampul Buku : </label>
                             <input type="file" name="sampul_buku" class="form-control"  accept="image/*">

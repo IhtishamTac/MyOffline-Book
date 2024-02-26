@@ -9,7 +9,7 @@
     <title>Login</title>
     <style>
         body {
-            background-image: url('other_image/bg-perpis.jpg');
+            background-image: url('other_image/bg-white.jpg');
             background-size: cover;
             background-repeat: no-repeat;
         }
@@ -17,6 +17,7 @@
 </head>
 
 <body>
+    @include('sweetalert::alert')
     <div class="container mt-5">
         <div class="col-4 mx-auto">
             <img src="other_image/aranged-book.jpg" alt="top"
@@ -24,17 +25,17 @@
             <div class="card shadow p-2" style="border-radius: 2px;">
                 <div class="card-body">
                     <h2>
-                        <span style="color: rgb(255, 215, 0); font-weight: 600;">Flybook</span> Indonesia
+                        <span style="font-weight: 600;" class="text-primary">Flybook</span> Indonesia
                     </h2>
                     <form action="{{ route('postlogin') }}" class="form-group" method="POST">
                         @csrf
                         <div class="mt-4">
                             <p>Fill Your Credentials...</p>
-                            <input type="text" placeholder="Username..." name="username" class="form-control"
+                            <input type="text" placeholder="Username..." name="username" class="form-control" required
                                 style="border-radius: 2px;">
                         </div>
                         <div class="mt-3">
-                            <input type="password" name="password" placeholder="Password..." class="form-control"
+                            <input type="password" name="password" placeholder="Password..." class="form-control" required
                                 style="border-radius: 2px;">
                         </div>
                         <div class="d-flex justify-content-end">
@@ -47,12 +48,12 @@
                         </div>
                         <div class="mt-3">
                             <button class="btn w-100 text-white"
-                                style="background-color: rgb(255, 215, 0); border-radius: 2px;">Login</button>
+                                style="background-color: #03a9f4; border-radius: 2px; font-weight: 500;">Login</button>
                         </div>
                         <hr class="mt-4">
                         <div class="mt-4">
-                            <button class="btn w-100 text-white"
-                                style="background-color: rgb(247, 226, 105); border-radius: 2px;">Register</button>
+                            <a href="{{ route('member.index') }}" class="btn w-100 text-white"
+                                style="background-color: #8c00ff; border-radius: 2px; font-weight: 500;">Cek Profil Member</a>
                         </div>
                     </form>
                 </div>

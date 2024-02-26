@@ -20,10 +20,10 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: url('{{ asset('other_image/bg-perpis.jpg') }}');
+            background-image: url('{{ asset('other_image/bg-white.jpg') }}');
             background-size: cover;
             background-repeat: no-repeat;
-            opacity: 0.2;
+            opacity: 0.5;
             z-index: -1;
         }
     </style>
@@ -50,8 +50,8 @@
                 <div class="d-flex justify-content-between mt-2">
                     <h3 style="font-weight: 350;">Pembeli : <span
                             style="font-weight: 500;">{{ $transaksi->nama_pembeli }}</span></h3>
-                    <p style="background-color: rgb(255, 238, 0); padding: 7px; border-radius: 2px; font-size: large; height: 40px"
-                        class="text-black"> {{ $transaksi->invoice }} </p>
+                    <p style="padding: 7px; border-radius: 2px; font-size: large; height: 40px"
+                        class="text-white bg-success"> {{ $transaksi->invoice }} </p>
                 </div>
                 <hr>
             </div>
@@ -89,14 +89,14 @@
                                         {{ $item->book->judul_buku }}
                                     </td>
                                     <td>
-                                        Rp. {{ number_format($item->book->harga_buku, 2, ',', '.') }};
+                                        Rp. {{ number_format($item->book->harga_buku, 0, ',', '.') }};
                                     </td>
                                     <td>
                                         {{ $item->qty }}
                                     </td>
                                     <td>
                                         Rp.
-                                        {{ number_format($item->book->harga_buku * 4, 2, ',', '.') }};
+                                        {{ number_format($item->book->harga_buku * $item->qty, 0, ',', '.') }};
                                     </td>
                                 </tr>
                             @endforeach
@@ -106,7 +106,7 @@
                     @if ($transaksi->voucher_digunakan)
                         <div class="d-flex justify-content-between">
                             <p style="font-size: large">Total Semula : </p>
-                            <h5>Rp. {{ number_format($totalSemuas, 2, ',', '.') }}</h5>
+                            <h5>Rp. {{ number_format($totalSemuas, 0, ',', '.') }}</h5>
                         </div>
                         <div class="d-flex justify-content-between">
                             <p style="font-size: large">Voucher : </p>
@@ -119,7 +119,7 @@
                     @endif
                     <div class="d-flex justify-content-between">
                         <p style="font-size: large">Total Semua : </p>
-                        <h5>Rp. {{ number_format($transaksi->total_semua, 2, ',', '.') }}</h5>
+                        <h5>Rp. {{ number_format($transaksi->total_semua, 0, ',', '.') }}</h5>
                     </div>
                 </div>
             </div>
