@@ -54,7 +54,7 @@
 
             <div class="d-flex gap-2">
                 <input type="text" id="searchKategori" name="searchKategori" list="optionsList" class="form-control"
-                    placeholder="Pilih Kategori">
+                    placeholder="Cari Kategori">
 
                 <datalist id="optionsList">
                     @foreach ($kategoris as $kategori)

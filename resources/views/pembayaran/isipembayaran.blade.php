@@ -27,33 +27,54 @@
         z-index: -1;
     }
 </style>
+
 <body>
     <div class="container mt-5">
-        <div class="d-flex justify-content-center">
-            <div class="col-4">
+        <div class="row justify-content-center">
+            <div class="col-md-6">
                 <div class="card shadow">
                     <div class="card-body">
-                        <div class="d-flex justify-content-center">
-                            <img src="{{ asset('icon_assets/qrislogo.png') }}" alt="qrislogo">
-                        </div>
-                        <div class="mt-3">
-                            <input type="text" class="form-control" placeholder="Isi Nominal..." id="nominalInput">
-                        </div>
-                        <div class="mt-3">
-                            <a href="{{ route('sukses-bayar') }}" class="btn btn-success w-100" onclick="inputNominal()" style="border-radius: 2px;">Bayar</a>
-                        </div>
+                        <form action="{{ route('sukses-bayar') }}">
+                            <div class="text-center">
+                                <img src="{{ asset('icon_assets/qrislogo.png') }}" alt="qrislogo">
+                            </div>
+                            <div class="mt-3">
+                                <input type="number" min="1" class="form-control" name="nominal"
+                                    placeholder="Isi Nominal..." id="nominalInput">
+                            </div>
+                            <div class="mt-3">
+                                <button class="btn btn-success w-100" onclick="inputNominal()"
+                                    style="border-radius: 2px;" id="btnBayar" disabled>Bayar</button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <script>
-        function inputNominal() {
-            var inputNominal = document.getElementById("nominalInput");
-            localStorage.setItem('nominal', inputNominal.value);
 
-        }
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var input = document.getElementById('nominalInput');
+            var btnBayar = document.getElementById('btnBayar');
+
+            input.addEventListener('input', (() => {
+                updateTotal();
+            }));
+
+            function updateTotal() {
+                var input = document.getElementById('nominalInput');
+                var uangDibayarkan = parseInt(input.value) || 0;
+
+                if (uangDibayarkan < 1) {
+                    btnBayar.disabled = true;
+                } else {
+                    btnBayar.disabled = false;
+                }
+            }
+
+        });
     </script>
 </body>
 

@@ -19,7 +19,7 @@ class AuthController extends Controller
             return redirect()->back();
         }
         if(auth()->user()->role == 'admin'){
-            return redirect()->route('home.owner');
+            return redirect()->route('homes.owner');
         }
         if(auth()->user()->role == 'pustakawan'){
             return redirect()->route('home');

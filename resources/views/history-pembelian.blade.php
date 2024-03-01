@@ -79,7 +79,7 @@
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between">
                                         <p style="font-size: large">{{ $item->nama_pembeli }} <span
-                                                style="font-weight: 500">({{ $item->created_at }})</span></p>
+                                                style="font-weight: 500">({{ \Carbon\Carbon::parse($item->created_at)->format('d F Y') }})</span></p>
                                         <p style="padding: 7px; border-radius: 2px; position: absolute; right: 0; top: 0;"
                                             class="text-white bg-success">{{ $item->invoice }} </p>
                                     </div>

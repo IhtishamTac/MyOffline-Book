@@ -16,8 +16,8 @@
                                     <div class="d-flex justify-content-between">
                                         <p style="font-size: large">{{ $item->nama_pembeli }} <span
                                                 style="font-weight: 500">({{ $item->created_at }})</span></p>
-                                        <p style="background-color: rgb(0, 76, 255); padding: 7px; border-radius: 2px; position: absolute; right: 0; top: 0;"
-                                            class="text-white">{{ $item->invoice }} </p>
+                                        <p style="padding: 7px; border-radius: 2px; position: absolute; right: 0; top: 0;"
+                                            class="text-white bg-success">{{ $item->invoice }} </p>
                                     </div>
                                     <div class="d-flex justify-content-between">
                                         <p>Jumlah Semua Barang : </p>

@@ -39,7 +39,7 @@
                 @endif
                 <a href="{{ route('log') }}" class="nav-link text-dark">Aktivitas Terakhir</a>
                 <a href="{{ route('logout') }}" class="nav-link text-light bg-danger" style="border-radius: 2px;"
-                   onclick="return confirm('Yakin ingin logout?')">Logout</a>
+                   onclick="return confirm('Yakin ingin logout?')">Keluar</a>
             </div>
         @endif
     </div>

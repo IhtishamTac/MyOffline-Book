@@ -43,14 +43,10 @@
                         <div class="m-3 p-3" style="border-radius: 2px; background-color: rgb(246, 246, 246); border: 1px solid #591FCE;">
                             <div class="d-flex justify-content-between">
                                 <h4>{{ $item->nama_voucher }}</h4>
-                                <p
-                                    style="background-color: rgb(255, 0, 0); padding: 5px; border-radius: 2px; color: white;">
-                                    {{ $item->tanggal_kadaluarsa }}</p>
-                            </div>
-                            <div class="d-flex justify-content-between">
-                                <p style="">Potongan</p>
+                              
                                 <h5 style="font-size: large; color: red; margin-top: 4px;">{{ $item->potongan_harga }}%</h5>
                             </div>
+                            
                         </div>
                     @endforeach
                 </div>

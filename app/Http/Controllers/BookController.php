@@ -15,6 +15,8 @@ use App\Models\User;
 use App\Models\Voucher;
 use App\Models\VoucherInventory;
 use Carbon\Carbon;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Validator;
 use RealRashid\SweetAlert\Facades\Alert;
 
@@ -22,7 +24,7 @@ class BookController extends Controller
 {
     public function index()
     {
-        $books = Book::where('status', 'Dijual')->where('stok', '>', 0)->get();
+        $books = Book::where('status', 'Dijual')->where('stok', '>', 0)->latest()->get();
         $kategoris = Kategori::paginate(5);
         return view('welcome', compact('books', 'kategoris'));
     }
@@ -31,9 +33,9 @@ class BookController extends Controller
     {
         $searchTerm = $request->input('query');
         if ($searchTerm) {
-            $books = Book::where('judul_buku', 'LIKE', "%{$searchTerm}%")->get();
+            $books = Book::where('judul_buku', 'LIKE', "%{$searchTerm}%")->where('status', 'Dijual')->where('stok', '>', 0)->get();
         } else {
-            $books = Book::where('status', 'Dijual')->get();
+            $books = Book::where('status', 'Dijual')->where('stok', '>', 0)->get();
         }
 
         return view('ajax-template.book-card-home', compact('books'));
@@ -46,15 +48,16 @@ class BookController extends Controller
         if ($searchTerm) {
             $kategori = Kategori::where('nama_kategori', 'LIKE', "%{$lowercaseQuery}%")
                 ->with([
-                    'books' => function ($bookQuery){
+                    'books' => function ($bookQuery) {
                         $bookQuery->where('status', 'Dijual');
-                    }])->get();
+                    }
+                ])->get();
 
             foreach ($kategori as $kat) {
                 $books = $kat->books;
             }
         } else {
-            $books = Book::where('status', 'Dijual')->get();
+            $books = Book::where('status', 'Dijual')->where('stok', '>', 0)->get();
         }
 
         return view('ajax-template.book-card-home', compact('books'));
@@ -125,6 +128,11 @@ class BookController extends Controller
 
     public function postkeranjang(Request $request, $id)
     {
+        $book = Book::where('id', $id)->first();
+        if($book->stok < $request->qty){
+            Alert::error('Warning', 'Stok buku hanya tersisa ' . $book->stok.'!');
+            return redirect()->back();
+        }
         $cekTransaksi = Transaksi::where(['user_id' => auth()->id(), 'status' => 'Pending'])->with('detailtransaksi')->first();
         if ($cekTransaksi) {
             if ($detailTransaksi = $cekTransaksi->detailtransaksi->where('book_id', $id)->first()) {
@@ -160,6 +168,10 @@ class BookController extends Controller
     {
         $inventory = [];
         $transaksi = Transaksi::where(['user_id' => auth()->id(), 'status' => 'Pending'])->with('detailtransaksi.book')->get();
+        $transaksi = $transaksi->map(function ($item) {
+            $item->detailtransaksi = $item->detailtransaksi->reverse();
+            return $item;
+        });
         return view('checkout', compact(['transaksi', 'inventory']));
     }
 
@@ -228,6 +240,7 @@ class BookController extends Controller
             'user_id' => auth()->id(),
             'aktivitas' => 'Melakukan checkout untuk Pelanggan Bernama : ' . $request->nama_pembeli
         ]);
+        Cache::forget('nominal');
 
         return redirect()->route('home');
     }
@@ -248,7 +261,7 @@ class BookController extends Controller
         $transaksi = Transaksi::where([
             'user_id' => auth()->id(),
             'status' => 'Dibayar'
-        ])->with('detailtransaksi.book')->latest()->get();
+        ])->with('detailtransaksi.book')->latest()->paginate(10);
 
         return view('history-pembelian', compact('transaksi'));
     }
@@ -279,8 +292,9 @@ class BookController extends Controller
             Alert::error('Member tidak ada!');
             return redirect()->back();
         }
+        $memberName = $member->nama_member;
         $inventory = VoucherInventory::where('member_id', $member->id)->get();
         $transaksi = Transaksi::where(['user_id' => auth()->id(), 'status' => 'Pending'])->with('detailtransaksi.book')->get();
-        return view('checkout', compact(['transaksi', 'inventory']));
+        return view('checkout', compact(['transaksi', 'inventory', 'memberName']));
     }
 }

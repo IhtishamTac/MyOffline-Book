@@ -30,25 +30,25 @@
                     <form action="{{ route('postlogin') }}" class="form-group" method="POST">
                         @csrf
                         <div class="mt-4">
-                            <p>Fill Your Credentials...</p>
-                            <input type="text" placeholder="Username..." name="username" class="form-control" required
+                            <p>Isikan akun anda...</p>
+                            <input type="text" placeholder="Nama Pengguna..." name="username" class="form-control" required
                                 style="border-radius: 2px;">
                         </div>
                         <div class="mt-3">
-                            <input type="password" name="password" placeholder="Password..." class="form-control" required
+                            <input type="password" name="password" placeholder="Kata Sandi..." class="form-control" required
                                 style="border-radius: 2px;">
                         </div>
                         <div class="d-flex justify-content-end">
                             <div class="form-check mt-2">
                                 <label class="form-check-label" for="flexCheckDefault">
-                                    Remember me
+                                    Ingat saya
                                 </label>
                                 <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault">
                             </div>
                         </div>
                         <div class="mt-3">
                             <button class="btn w-100 text-white"
-                                style="background-color: #03a9f4; border-radius: 2px; font-weight: 500;">Login</button>
+                                style="background-color: #03a9f4; border-radius: 2px; font-weight: 500;">Masuk</button>
                         </div>
                         <hr class="mt-4">
                         <div class="mt-4">

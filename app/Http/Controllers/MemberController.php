@@ -6,6 +6,8 @@ use App\Models\Member;
 use App\Models\Voucher;
 use App\Models\VoucherInventory;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 use RealRashid\SweetAlert\Facades\Alert;
 
 class MemberController extends Controller
@@ -32,8 +34,11 @@ class MemberController extends Controller
     {
         return view('pembayaran.isipembayaran');
     }
-    public function suskesBayar()
+    
+    public function suskesBayar(Request $request)
     {
+        Cache::put('nominal', $request->nominal, 60);
         return view('pembayaran.suksesbayar');
     }
+  
 }

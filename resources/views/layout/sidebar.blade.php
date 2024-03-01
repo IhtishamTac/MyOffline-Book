@@ -19,7 +19,7 @@
                             Penjualan</a>
                     @endif
                     @if (auth()->user()->role == 'admin')
-                        <a href="{{ route('home.owner') }}" class="list-group-item list-group-item-action text-dark p-4"
+                        <a href="{{ route('homes.owner') }}" class="list-group-item list-group-item-action text-dark p-4"
                             style="font-size: larger; padding-left: 30px;">Dashboard</a>
                         <a href="{{ route('home.admin') }}" class="list-group-item list-group-item-action text-dark p-4"
                             style="font-size: larger; padding-left: 30px;">Kelola
@@ -31,7 +31,7 @@
                     <a href="{{ route('logout') }}"
                         class="list-group-item list-group-item-action text-light p-4 bg-danger"
                         style="border-radius: 2px; font-size: larger; font-weight: 500"
-                        onclick="return confirm('Yakin akan logout?')">Logout</a>
+                        onclick="return confirm('Yakin akan logout?')">Keluar</a>
                 </div>
             </div>
         </div>

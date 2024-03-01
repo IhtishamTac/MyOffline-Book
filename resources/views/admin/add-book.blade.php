@@ -38,7 +38,7 @@
                                 placeholder="Deskripsi singkat..." required></textarea>
                         </div>
                         <div class="mt-3">
-                            <input type="number" name="harga" class="form-control" placeholder="Harga..." required>
+                            <input type="number" min="10000" name="harga" class="form-control" placeholder="Harga..." required>
                         </div>
                         <div class="mt-3">
                             <label for="stok">Stok Buku : </label>

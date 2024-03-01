@@ -36,7 +36,7 @@
                             <textarea name="deskripsi" style="resize: none;" class="form-control" cols="30" rows="3" placeholder="Deskripsi singkat..." required>{{ $book->deskripsi }}</textarea>
                         </div>
                         <div class="mt-3">
-                            <input type="number" name="harga_buku" class="form-control" placeholder="Harga..." value="{{ $book->harga_buku }}" required>
+                            <input type="number" min="1" name="harga_buku" class="form-control" placeholder="Harga..." value="{{ $book->harga_buku }}" required>
                         </div>
                         <div class="mt-3">
                             <label for="stok">Stok Buku : </label>

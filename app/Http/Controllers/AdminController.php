@@ -13,13 +13,26 @@ class AdminController extends Controller
 {
     public function index()
     {
-        $books = Book::where('status', 'Dijual')->get();
+        $books = Book::select('books.*', 'kategoris.nama_kategori')
+            ->where('books.status', 'Dijual')
+            ->with('kategori')
+            ->join('kategoris', 'books.kategori_id', '=', 'kategoris.id')
+            ->orderBy('kategoris.nama_kategori')
+            ->latest()
+            ->get();
+
         return view('admin.index', compact('books'));
     }
 
     public function bookTidakDijual(Request $request)
     {
-        $books = Book::where('status', $request->statusBuku)->get();
+        $books = Book::select('books.*', 'kategoris.nama_kategori')
+            ->where('books.status', $request->statusBuku)
+            ->with('kategori')
+            ->join('kategoris', 'books.kategori_id', '=', 'kategoris.id')
+            ->orderBy('kategoris.nama_kategori')
+            ->latest()
+            ->get();
         return view('admin.index', compact('books'));
     }
 
@@ -33,7 +46,7 @@ class AdminController extends Controller
     {
         if ($request) {
             $book = Book::create([
-                'kategori_id' => $request->kategori_id,
+                'kategori_id' => $request->kategori_id || 1,
                 'sampul_buku' => $request->sampul->store('book_image'),
                 'judul_buku' => $request->judul,
                 'deskripsi' => $request->deskripsi,
@@ -56,7 +69,7 @@ class AdminController extends Controller
     public function editBook(Book $book)
     {
         $kategori = Kategori::all();
-        return view('admin.edit-book', compact('book','kategori'));
+        return view('admin.edit-book', compact('book', 'kategori'));
     }
 
     public function postEditBook(Request $request, Book $book)
@@ -68,12 +81,12 @@ class AdminController extends Controller
             'stok' => 'required',
         ]);
 
-        if($request->hasFile('sampul_buku')){
+        if ($request->hasFile('sampul_buku')) {
             $data['sampul_buku'] = $request->sampul_buku->store('img');
-        }else{
+        } else {
             unset($data['foto']);
         }
-        if($request->kategori_id){
+        if ($request->kategori_id) {
             $data['kategori_id'] = $request->kategori_id;
         }
 
@@ -87,7 +100,8 @@ class AdminController extends Controller
         return redirect()->route('home.admin');
     }
 
-    public function aktifkanBuku(Book $book){
+    public function aktifkanBuku(Book $book)
+    {
         $book->update([
             'status' => 'Dijual'
         ]);
@@ -95,7 +109,8 @@ class AdminController extends Controller
         return redirect()->route('home.admin');
     }
 
-    public function nonaktifkanBuku(Book $book){
+    public function nonaktifkanBuku(Book $book)
+    {
         $book->update([
             'status' => 'Tidak Dijual'
         ]);

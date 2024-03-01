@@ -14,7 +14,7 @@ class OwnerController extends Controller
 {
     public function index()
     {
-        $transaksis = Transaksi::where('status', 'Dibayar')->with('detailtransaksi.book')->get();
+        $transaksis = Transaksi::where('status', 'Dibayar')->with('detailtransaksi.book')->latest()->get();
 
         $tanggal = $transaksis->pluck('updated_at')->map(function ($date) {
             return \Carbon\Carbon::parse($date)->format('d-m-Y');
@@ -80,6 +80,7 @@ class OwnerController extends Controller
                     Carbon::parse($request->dateTo)->endOfDay()
                 ])
                 ->with('detailtransaksi.book')
+                ->latest()
                 ->get();
         }
 

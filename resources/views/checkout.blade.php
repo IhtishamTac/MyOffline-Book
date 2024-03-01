@@ -9,9 +9,6 @@
     <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
     <link rel="stylesheet" href="{{ asset('css/dataTables.bootstrap5.min.css') }}">
 
-    <script src="{{ asset('js/jquery-3.7.0.js') }}"></script>
-    <script src="{{ asset('js/dataTables.bootstrap5.min.js') }}"></script>
-    <script src="{{ asset('js/jquery.dataTables.min.js') }}"></script>
 
     <title>Checkout - {{ auth()->user()->name }}</title>
 
@@ -39,6 +36,11 @@
 <body>
     @php
         $totalSemua = 0;
+        // $nominal = cache()->get('nominal') || 0;
+        $NamaMember = null;
+        if(!empty($memberName)){
+            $NamaMember = $memberName;
+        }
 
         foreach ($transaksi as $item) {
             foreach ($item->detailtransaksi as $dtl) {
@@ -67,15 +69,15 @@
                             <p style="margin-top: 10px; font-size: large;">Total Semua Buku : <span
                                     style="font-weight: 500; margin-right: 10px;" id="totalHarga">Rp.
                                     {{ number_format($totalSemua, 0, ',', '.') }}</span></p>
-                            <button id="btnCheckout" type="submit" onclick="confirmBayar()"
+                            <button id="btnCheckout" type="submit" onclick="return confirmBayar()"
                                 style=" border-radius: 2px; width: 100px;font-size: large;"
                                 class="btn btn-success text-white" disabled>Bayar</button>
                         </div>
                     </div>
                     <div class="mt-3 d-flex justify-content-between">
                         <div class="d-flex">
-                            <input type="text" class="form-control" name="uang_dibayarkan"
-                                placeholder="Uang dibayarkan..." id="uangDibayarkan">
+                            <input type="number" min="1" class="form-control" name="uang_dibayarkan"
+                                placeholder="Uang dibayarkan..." id="uangDibayarkan" >
                             {{-- qris button --}}
                             <button type="button" data-bs-toggle="modal" data-bs-target="#modalQris"
                                 class="btn btn-secondary w-50" style="border-radius: 2px;">Show QRis</button>
@@ -88,7 +90,7 @@
                                         </div>
                                         <div class="modal-body">
                                             <div class="d-flex justify-content-center">
-                                                {!! QrCode::size(400)->generate('http://http://127.0.0.1:8000/pembayaran-qris') !!}
+                                                {!! QrCode::size(400)->generate('http://192.168.1.12:8000/pembayaran-qris') !!}
                                             </div>
                                         </div>
                                         <div class="modal-footer">
@@ -104,6 +106,7 @@
                     </div>
                     <div class="mt-3">
                         <input type="text" class="form-control" placeholder="Nama Pembeli" name="nama_pembeli"
+                        value="{{ $NamaMember }}"
                             onchange="updateTotal()" required>
                     </div>
 
@@ -198,6 +201,8 @@
     @include('layout.footer')
 
     <script src="{{ asset('js/jquery-3.7.0.js') }}"></script>
+    <script src="{{ asset('js/dataTables.bootstrap5.min.js') }}"></script>
+    <script src="{{ asset('js/jquery.dataTables.min.js') }}"></script>
     <script src="{{ asset('js/bootstrap.min.js') }}"></script>
     <script>
         new DataTable("#tabelKeranjang");
@@ -226,7 +231,10 @@
             var kembali = uangDibayarkan - (totalSemua - potongan_harga);
             var newTotal = totalSemua - potongan_harga;
 
-            if (uangDibayarkan < (totalSemua - potongan_harga)) {
+            if(newTotal == 0){
+                lblTotal.textContent = "Mohon masukan minimal 1 barang";
+                input.disabled = true;
+            }else if (uangDibayarkan < (totalSemua - potongan_harga)) {
                 lblKembali.textContent = "Uang tidak cukup";
                 lblTotal.textContent = 'Rp. ' + newTotal.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
                 btnCheckout.disabled = true;
@@ -250,7 +258,7 @@
 
             var inputKodeMember = document.getElementById('kodeMember');
             const kodeMembe = localStorage.getItem('kodeMember');
-            const inputNominal = localStorage.getItem('nominal');
+            const inputNominal = {{ cache()->get('nominal') ?? 0 }};
             inputKodeMember.value = kodeMembe;
             input.value = inputNominal;
             updateTotal();
@@ -261,7 +269,7 @@
 
             if (confirmation) {
                 localStorage.removeItem('kodeMember');
-                localStorage.removeItem('nominal');
+                
                 return true;
             } else {
                 return false;

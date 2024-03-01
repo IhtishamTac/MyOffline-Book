@@ -49,6 +49,7 @@
                             <th>Sampul</th>
                             <th>Judul</th>
                             <th>Deskripsi</th>
+                            <th>Kategori</th>
                             <th>Harga</th>
                             <th>Stok</th>
                             <th>Aksi</th>
@@ -59,15 +60,16 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 @if ($item->status == 'Dijual')
-                                    <td><img src="{{ asset($item->sampul_buku) }}" width="80px" height="120px"
-                                            style="object-fit: cover;" alt="sampul"></td>
-                                @elseif($item->status == 'Tidak Dijual')
+                                <td><img src="{{ asset($item->sampul_buku) }}" width="80px" height="120px"
+                                    style="object-fit: cover;" alt="sampul"></td>
+                                    @elseif($item->status == 'Tidak Dijual')
                                     <td><img src="{{ asset($item->sampul_buku) }}"
-                                            style="filter: grayscale(100%); height: 120px; object-fit: cover;"
-                                            width="80px" alt="sampul"></td>
-                                @endif
-                                <td>{{ $item->judul_buku }}</td>
-                                <td>{{ $item->deskripsi }}</td>
+                                        style="filter: grayscale(100%); height: 120px; object-fit: cover;"
+                                        width="80px" alt="sampul"></td>
+                                        @endif
+                                        <td>{{ $item->judul_buku }}</td>
+                                        <td>{{ $item->deskripsi }}</td>
+                                        <td>{{ $item->kategori->nama_kategori }}</td>
                                 <td>Rp. {{ number_format($item->harga_buku, 2, ',', '.') }}</td>
                                 <td>{{ $item->stok }}</td>
                                 <td style="display: flex; gap: 5px;" class="">
